@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON STRIKE PRO | Elite Edition</title>
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-pink: #ff007f;
+            --neon-purple: #9d00ff;
+            --bg-dark: #050505;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            font-family: 'Orbitron', sans-serif; /* Futuristic font */
+            overflow: hidden;
+        }
+
+        #game-wrapper {
+            position: relative;
+            width: 95vw;
+            max-width: 450px;
+            height: 75vh;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%);
+            border: 3px solid var(--neon-blue);
+            border-radius: 20px;
+            box-shadow: 0 0 20px var(--neon-blue), inset 0 0 15px var(--neon-blue);
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #score-panel {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 450px;
+            margin-bottom: 10px;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        #ball {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #fff, 0 0 40px var(--neon-blue);
+            display: none;
+            z-index: 10;
+        }
+
+        #paddle {
+            position: absolute;
+            top: 40px; /* Top Paddle Style */
+            width: 110px;
+            height: 15px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+            border-radius: 20px;
+            box-shadow: 0 0 15px var(--neon-pink);
+            transform: translateX(-50%);
+            z-index: 20;
+            border: 1px solid #fff;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 45px;
+            margin: 0;
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        button {
+            margin-top: 30px;
+            padding: 15px 45px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        button:hover {
+            background: var(--neon-blue);
+            color: black;
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+
+        /* Screen Shake Animation */
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(5px, 5px); }
+            50% { transform: translate(-5px, -5px); }
+            75% { transform: translate(5px, -5px); }
+            100% { transform: translate(0,0); }
+        }
+        .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
+    </style>
+</head>
+<body>
+
+    <div id="score-panel">
+        <div>SCORE: <span id="score">0</span></div>
+        <div>BEST: <span id="high">0</span></div>
+    </div>
+
+    <div id="game-wrapper">
+        <div id="ball"></div>
+        <div id="paddle"></div>
+        
+        <div id="menu" class="overlay">
+            <h1>NEON STRIKE</h1>
+            <p style="color: var(--neon-blue)">Stop the rising core!</p>
+            <button onclick="bootGame()">INITIALIZE</button>
+        </div>
+
+        <div id="game-over" class="overlay" style="display: none;">
+            <h1 style="filter: hue-rotate(90deg);">TERMINATED</h1>
+            <p id="final-score" style="font-size: 24px;">SCORE: 0</p>
+            <button onclick="bootGame()">REBOOT</button>
+        </div>
+    </div>
+
+    <script>
+        const ball = document.getElementById('ball');
+        const paddle = document.getElementById('paddle');
+        const scoreEl = document.getElementById('score');
+        const highEl = document.getElementById('high');
+        const wrapper = document.getElementById('game-wrapper');
+        const menu = document.getElementById('menu');
+        const gameOverScreen = document.getElementById('game-over');
+
+        let score = 0;
+        let high = localStorage.getItem('neonHigh') || 0;
+        highEl.innerText = high;
+
+        let ballX, ballY, speedX, speedY;
+        let active = false;
+        let loop;
+
+        // --- PRO AUDIO SYSTEM ---
+        const audio = new (window.AudioContext || window.webkitAudioContext)();
+
+        function sfx(freq, type, duration, vol = 0.1) {
+            const osc = audio.createOscillator();
+            const gain = audio.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audio.currentTime);
+            gain.gain.setValueAtTime(vol, audio.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audio.destination);
+            osc.start();
+            osc.stop(audio.currentTime + duration);
+        }
+
+        // --- CONTROLS ---
+        wrapper.addEventListener('pointermove', (e) => {
+            const rect = wrapper.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            if (x > 55 && x < rect.width - 55) {
+                paddle.style.left = x + 'px';
+            }
+        });
+
+        function bootGame() {
+            if (audio.state === 'suspended') audio.resume();
+            score = 0;
+            scoreEl.innerText = score;
+            speedY = 5;
+            speedX = (Math.random() - 0.5) * 6;
+            ballY = wrapper.clientHeight - 30;
+            ballX = wrapper.clientWidth / 2;
+            
+            menu.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            ball.style.display = 'block';
+            active = true;
+            
+            sfx(880, 'sine', 0.2); // Start sound
+            animate();
+        }
+
+        function animate() {
+            if (!active) return;
+
+            ballY -= speedY; // Ball goes UP
+            ballX += speedX;
+
+            // Bounce off side walls
+            if (ballX < 15 || ballX > wrapper.clientWidth - 15) {
+                speedX *= -1.05; // Slightly speed up on bounce
+                sfx(300, 'triangle', 0.1, 0.05);
+            }
+
+            ball.style.top = ballY + 'px';
+            ball.style.left = ballX + 'px';
+
+            const b = ball.getBoundingClientRect();
+            const p = paddle.getBoundingClientRect();
+
+            // COLLISION WITH TOP PADDLE
+            if (b.top <= p.bottom && b.bottom >= p.top &&
+                b.left >= p.left - 10 && b.right <= p.right + 10 && speedY > 0) {
+                
+                score++;
+                scoreEl.innerText = score;
+                speedY = -(speedY + 0.5); // Reverse and speed up
+                speedX += (ballX - (parseInt(paddle.style.left))) * 0.15;
+                
+                // Visual & Audio Feedback
+                wrapper.classList.add('shake');
+                setTimeout(() => wrapper.classList.remove('shake'), 200);
+                sfx(600 + (score * 30), 'square', 0.15);
+                
+                // Teleport ball back to bottom to keep the "Upward" flow
+                setTimeout(() => {
+                    ballY = wrapper.clientHeight;
+                    ballX = Math.random() * (wrapper.clientWidth - 40) + 20;
+                    speedY = Math.abs(speedY);
+                }, 100);
+            }
+
+            // OUT (Passed the paddle)
+            if (ballY < -30) {
+                endGame();
+                return;
+            }
+
+            loop = requestAnimationFrame(animate);
+        }
+
+        function endGame() {
+            active = false;
+            cancelAnimationFrame(loop);
+            sfx(100, 'sawtooth', 0.6, 0.2); // Low fail sound
+            ball.style.display = 'none';
+            
+            if (score > high) {
+                high = score;
+                localStorage.setItem('neonHigh', high);
+                highEl.innerText = high;
+            }
+
+            document.getElementById('final-score').innerText = "FINAL SCORE: " + score;
+            gameOverScreen.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
