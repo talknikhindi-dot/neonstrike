@@ -281,3 +281,105 @@
 </body>
 </html>
 <head><meta name="a780f3b5212389565307777a9bf105b4d534992b" content="a780f3b5212389565307777a9bf105b4d534992b" /></head>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talknik Ad Player - Premium Dashboard</title>
+    <style>
+        body { background-color: #0f172a; color: white; font-family: 'Inter', 'Segoe UI', sans-serif; text-align: center; padding: 20px; }
+        .ad-container { background: #1e293b; padding: 30px; border-radius: 20px; max-width: 900px; margin: 0 auto; min-height: 450px; border: 1px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .ad-slot { display: none; animation: fadeIn 0.8s ease-in-out; }
+        .active { display: block !important; }
+        #status-bar { color: #38bdf8; font-size: 1.1rem; margin-bottom: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        hr { border: 0; border-top: 1px solid #334155; margin-bottom: 25px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    <script src="https://quge5.com/88/tag.min.js" data-zone="223135" async></script>
+    <script src="https://pl28976037.profitablecpmratenetwork.com/7b/75/fa/7b75faafce47cb1aed4f112ab010015e.js"></script>
+    <script async src="https://pl28976062.profitablecpmratenetwork.com/a101b1edef9212486681257cf93cb70c/invoke.js"></script>
+    <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="431531"></script>
+</head>
+<body>
+
+    <div class="ad-container">
+        <div id="status-bar">Ad 1 is active... (Next Ad in 30s)</div>
+        <hr>
+
+        <div class="ad-slot active" id="slot1"> 
+            <p>Premium Display Ad 1</p> 
+            </div>
+        
+        <div class="ad-slot" id="slot2"> 
+            <p>Monetization Slot 2</p>
+            </div>
+
+        <div class="ad-slot" id="slot3">
+            <script type="text/javascript">
+                atOptions = { 'key' : '1172b5b0f3dc00951b1dad49b86a18b4', 'format' : 'iframe', 'height' : 90, 'width' : 728 };
+            </script>
+            <script src="https://www.highperformanceformat.com/1172b5b0f3dc00951b1dad49b86a18b4/invoke.js"></script>
+        </div>
+
+        <div class="ad-slot" id="slot4">
+            <script type="text/javascript">
+                document.write('<script src="//cpm.ezmob.com/tag?zone_id=342491&size=300x250"></script>');
+            </script>
+        </div>
+
+        <div class="ad-slot" id="slot5">
+             <div id="container1" style="min-height: 250px;"></div>
+        </div>
+
+        <div class="ad-slot" id="slot6">
+            <ins style="width:300px;height:1050px" class="ib8a19a680b" data-domain="//data527.click" data-affquery="/a63b8be56aaf8c393fdb/b8a19a680b/?placementName=default"></ins>
+            <script src="//data527.click/js/responsive.js" async></script>
+        </div>
+
+        <div class="ad-slot" id="slot7">
+            <a href="https://hilltopads.com/?ref=372463" target="_blank" style="padding: 15px 30px; background: linear-gradient(90deg, #ff5722, #ff9800); color:white; border-radius:12px; display:inline-block; text-decoration:none; font-weight: bold; box-shadow: 0 5px 15px rgba(255,87,34,0.3);">
+                BECOME A PREMIUM PARTNER
+            </a>
+        </div>
+
+        </div>
+
+    <script>
+        let currentSlot = 1;
+        const totalSlots = 7; // Update this to 17 when you add all slots
+        let secondsLeft = 30;
+
+        function updateAdRotation() {
+            // 1. Hide Current Ad
+            document.getElementById('slot' + currentSlot).classList.remove('active');
+
+            // 2. Increment Slot (Loop back to 1 if it exceeds totalSlots)
+            currentSlot++;
+            if (currentSlot > totalSlots) {
+                currentSlot = 1; 
+            }
+
+            // 3. Show Next Ad
+            document.getElementById('slot' + currentSlot).classList.add('active');
+            
+            // 4. Reset Timer
+            secondsLeft = 30;
+        }
+
+        // Timer Execution
+        setInterval(() => {
+            secondsLeft--;
+            document.getElementById('status-bar').innerText = `Ad ${currentSlot} is active... (Next Ad in ${secondsLeft}s)`;
+            
+            if (secondsLeft <= 0) {
+                updateAdRotation();
+            }
+        }, 1000);
+    </script>
+
+</body>
+</html>
